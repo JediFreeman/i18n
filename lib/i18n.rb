@@ -2,7 +2,6 @@ require 'i18n/version'
 require 'i18n/exceptions'
 require 'i18n/filter_chain'
 require 'i18n/interpolate/ruby'
-require 'i18n/interpolate/missing_interpolation_argument_handler'
 require 'logger'
 
 module I18n
