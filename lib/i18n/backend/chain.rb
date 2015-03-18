@@ -77,6 +77,12 @@ module I18n
           end
         end
 
+        def exists?(locale, key)
+          backends.any? do |backend|
+            backend.exists?(locale, key)
+          end
+        end
+
         def localize(locale, object, format = :default, options = {})
           I18n.log_message :debug, "##### I18n::Backend::Chain.localize"
           backends.each do |backend|
