@@ -3,6 +3,7 @@ require 'test_helper'
 
 class I18nBackendTransliterator < I18n::TestCase
   def setup
+    super
     I18n.backend = I18n::Backend::Simple.new
     @proc = lambda { |n| n.upcase }
     @hash = { "ü" => "ue", "ö" => "oe", "a" => "a" }
@@ -55,11 +56,9 @@ class I18nBackendTransliterator < I18n::TestCase
     assert_equal "abc#", @transliterator.transliterate("abcſ", "#")
   end
 
-  if RUBY_VERSION >= "1.9"
-    test "default transliterator raises errors for invalid UTF-8" do
-      assert_raise ArgumentError do
-        @transliterator.transliterate("a\x92b")
-      end
+  test "default transliterator raises errors for invalid UTF-8" do
+    assert_raise ArgumentError do
+      @transliterator.transliterate("a\x92b")
     end
   end
 

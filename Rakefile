@@ -6,7 +6,7 @@ task :default => [:test]
 Rake::TestTask.new(:test) do |t|
   t.libs << 'lib'
   t.libs << 'test'
-  t.pattern = "#{File.dirname(__FILE__)}/test/all.rb"
+  t.pattern = "test/**/*_test.rb"
   t.verbose = true
   t.warning = true
 end

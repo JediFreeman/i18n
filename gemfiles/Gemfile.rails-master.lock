@@ -1,3 +1,15 @@
+GIT
+  remote: git://github.com/rails/rails.git
+  revision: fe46f009be1ece58e45abc51195e2381a71bd023
+  branch: master
+  specs:
+    activesupport (5.0.0.alpha)
+      i18n (>= 0.7.0.beta1, < 0.8)
+      json (~> 1.7, >= 1.7.7)
+      minitest (~> 5.1)
+      thread_safe (~> 0.1)
+      tzinfo (~> 1.1)
+
 PATH
   remote: ..
   specs:
@@ -6,12 +18,6 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
-    activesupport (4.1.8)
-      i18n (~> 0.6, >= 0.6.9)
-      json (~> 1.7, >= 1.7.7)
-      minitest (~> 5.1)
-      thread_safe (~> 0.1)
-      tzinfo (~> 1.1)
     json (1.8.1)
     metaclass (0.0.4)
     minitest (5.5.0)
@@ -27,7 +33,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  activesupport (~> 4.1.0)
+  activesupport!
   i18n!
   mocha
   rake

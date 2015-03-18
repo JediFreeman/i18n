@@ -126,7 +126,6 @@ module I18n
       end
 
       def reload!
-        @skip_syntax_deprecation = false
       end
       
       def reload_entry!(locale, key, options = {})
