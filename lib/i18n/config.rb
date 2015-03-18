@@ -41,10 +41,19 @@ module I18n
       @@available_locales || backend.available_locales
     end
 
+    # Caches the available locales list as both strings and symbols in a Set, so
+    # that we can have faster lookups to do the available locales enforce check.
+    def available_locales_set #:nodoc:
+      @@available_locales_set ||= available_locales.inject(Set.new) do |set, locale|
+        set << locale.to_s << locale.to_sym
+      end
+    end
+
     # Sets the available locales.
     def available_locales=(locales)
       @@available_locales = Array(locales).map { |locale| locale.to_sym }
       @@available_locales = nil if @@available_locales.empty?
+      @@available_locales_set = nil
     end
 
     # Returns the current default scope separator. Defaults to '.'

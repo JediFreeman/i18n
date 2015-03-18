@@ -311,16 +311,13 @@ module I18n
     
     ############################################################################
 
-    # Returns true when the passed locale is in I18.available_locales.
-    # Returns false otherwise.
-    # Compare with Strings as `locale` may be coming from user input
+    # Returns true when the passed locale, which can be either a String or a
+    # Symbol, is in the list of available locales. Returns false otherwise.
     def locale_available?(locale)
-      I18n.available_locales.map(&:to_s).include?(locale.to_s)
+      I18n.config.available_locales_set.include?(locale)
     end
 
-    # Raises an InvalidLocale exception when the passed locale is not
-    # included in I18n.available_locales.
-    # Returns false otherwise
+    # Raises an InvalidLocale exception when the passed locale is not available.
     def enforce_available_locales!(locale)
       handle_enforce_available_locales_deprecation
 
@@ -419,8 +416,8 @@ module I18n
     end
 
     def handle_enforce_available_locales_deprecation
-      if config.enforce_available_locales.nil? && !@unenforced_available_locales_deprecation
-        $stderr.puts "[deprecated] I18n.enforce_available_locales will default to true in the future. If you really want to skip validation of your locale you can set I18n.enforce_available_locales = false to avoid this message." 
+      if config.enforce_available_locales.nil? && !defined?(@unenforced_available_locales_deprecation)
+        $stderr.puts "[deprecated] I18n.enforce_available_locales will default to true in the future. If you really want to skip validation of your locale you can set I18n.enforce_available_locales = false to avoid this message."
         @unenforced_available_locales_deprecation = true
       end
     end
