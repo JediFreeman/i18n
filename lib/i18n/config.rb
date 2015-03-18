@@ -112,5 +112,13 @@ module I18n
     def filter_chain=(filter_chain)
       @@filter_chain = filter_chain
     end
+    
+    def logger
+      @@logger ||= nil
+    end
+    
+    def logger=(logger)
+      @@logger = logger
+    end
   end
 end

@@ -3,6 +3,7 @@ require 'i18n/exceptions'
 require 'i18n/filter_chain'
 require 'i18n/interpolate/ruby'
 require 'i18n/interpolate/missing_interpolation_argument_handler'
+require 'logger'
 
 module I18n
   autoload :Backend, 'i18n/backend'
@@ -27,7 +28,7 @@ module I18n
     end
 
     # Write methods which delegates to the configuration object
-    %w(locale backend default_locale available_locales default_separator
+    %w(locale backend default_locale available_locales default_separator logger
       exception_handler load_path filter_chain).each do |method|
       module_eval <<-DELEGATORS, __FILE__, __LINE__ + 1
         def #{method}
@@ -144,6 +145,8 @@ module I18n
     # always return the same translations/values per unique combination of argument
     # values.
     def translate(*args)
+      I18n.log_message :debug, "##### I18n.translate"
+      I18n.log_message :debug, "-- args: #{args.inspect}"
       options  = args.last.is_a?(Hash) ? args.pop.dup : {}
       key      = args.shift
       backend  = config.backend
@@ -159,6 +162,7 @@ module I18n
           backend.translate(locale, key, options)
         end
       end
+      I18n.log_newline
       result.is_a?(MissingTranslation) ? handle_exception(handling, result, locale, key, options) : result
     end
     alias :t :translate
@@ -265,6 +269,40 @@ module I18n
       keys
     end
 
+    ############################################################################
+
+    # Returns true if a translation exists for a given key, otherwise returns false
+    def exists?(locale = config.locale, key)
+      raise I18n::ArgumentError if key.is_a?(String) && key.empty?
+      config.backend.exists?(locale, key)
+    end
+
+    def reload_entry!(*args)
+      I18n.log_message :debug, "##### I18n.reload_entry!"
+      options  = args.last.is_a?(Hash) ? args.pop.dup : {}
+      key      = args.shift
+      locale   = options.delete(:locale) || config.locale
+      
+      config.backend.reload_entry!(locale, key, options)
+      
+      true
+    end
+
+    def log_message(level, msg, tag=nil)
+      tag ||= "#{ caller[0][/`([^']*)'/, 1] }"
+      if logger.respond_to?(:tagged)
+        logger.tagged([tag]) { log(level, msg) }
+      else
+        log(level, "[#{tag}] #{msg}")
+      end
+    end
+    
+    def log_newline(level=:debug)
+      log(level, '')
+    end
+    
+    ############################################################################
+
   # making these private until Ruby 1.9.2 can send to protected methods again
   # see http://redmine.ruby-lang.org/repositories/revision/ruby-19?rev=24280
   private
@@ -319,6 +357,27 @@ module I18n
     def normalized_key_cache
       @normalized_key_cache ||= Hash.new { |h,k| h[k] = {} }
     end
+
+    ############################################################################
+
+    def log(level, msg)
+      if !logger.nil?
+        case level
+        when :info
+          logger.add( Logger::Severity::INFO, msg )
+        when :warn
+          logger.add( Logger::Severity::WARN, msg )
+        when :error
+          logger.add( Logger::Severity::ERROR, msg )
+        when :fatal
+          logger.add( Logger::Severity::FATAL, msg )
+        else
+          logger.add( Logger::Severity::DEBUG, msg )
+        end
+      end
+    end
+
+    ############################################################################
 
     # DEPRECATED. Use I18n.normalize_keys instead.
     def normalize_translation_keys(locale, key, scope, separator = nil)

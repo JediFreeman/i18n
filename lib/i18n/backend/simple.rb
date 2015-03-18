@@ -68,6 +68,7 @@ module I18n
         # into multiple keys, i.e. <tt>currency.format</tt> is regarded the same as
         # <tt>%w(currency format)</tt>.
         def lookup(locale, key, scope = [], options = {})
+          I18n.log_message :debug, "##### I18n::Backend::Simple.lookup"
           init_translations unless initialized?
           keys = I18n.normalize_keys(locale, key, scope, options[:separator])
 

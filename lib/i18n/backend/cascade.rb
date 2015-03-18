@@ -32,6 +32,7 @@ module I18n
   module Backend
     module Cascade
       def lookup(locale, key, scope = [], options = {})
+        I18n.log_message :debug, "##### I18n::Backend::Cascade.lookup"
         return super unless cascade = options[:cascade]
 
         cascade   = { :step => 1 } unless cascade.is_a?(Hash)

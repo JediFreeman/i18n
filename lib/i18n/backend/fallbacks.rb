@@ -35,6 +35,7 @@ module I18n
       # it's a Symbol. When the default contains a String, Proc or Hash
       # it is evaluated last after all the fallback locales have been tried.
       def translate(locale, key, options = {})
+        #I18n.log_message :debug, "##### I18n::Backend::Fallbacks.translate"
         return super if options[:fallback]
         default = extract_non_symbol_default!(options) if options[:default]
 

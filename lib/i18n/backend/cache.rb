@@ -63,20 +63,35 @@ module I18n
     # TODO Should the cache be cleared if new translations are stored?
     module Cache
       def translate(locale, key, options = {})
+        I18n.log_message :debug, "##### I18n::Backend::Cache.translate"
         I18n.perform_caching? ? fetch(cache_key(locale, key, options)) { super } : super
+      end
+      
+      def reload!
+        super
+        @cache_key_prefix = nil
+      end
+      
+      def reload_entry!(locale, key, options = {})
+        I18n.log_message :debug, "##### I18n::Backend::Cache.reload_entry!"
+        I18n.perform_caching? ? I18n.cache_store.delete(cache_key(locale, key, options)) : true
+        super
       end
 
       protected
 
         def fetch(cache_key, &block)
-          result = _fetch(cache_key, &block)
+          I18n.log_message :debug, "##### I18n::Backend::Cache.fetch"
+        result = _fetch(cache_key, &block)
           throw(:exception, result) if result.is_a?(MissingTranslation)
           result = result.dup if result.frozen? rescue result
           result
         end
 
         def _fetch(cache_key, &block)
-          result = I18n.cache_store.read(cache_key) and return result
+          I18n.log_message :debug, "##### I18n::Backend::Cache._fetch"
+          result = I18n.cache_store.read(cache_key)
+          return result unless result.nil?
           result = catch(:exception, &block)
           I18n.cache_store.write(cache_key, result) unless result.is_a?(Proc)
           result
@@ -84,13 +99,18 @@ module I18n
 
         def cache_key(locale, key, options)
           # This assumes that only simple, native Ruby values are passed to I18n.translate.
-          "i18n/#{I18n.cache_namespace}/#{locale}/#{key.hash}/#{USE_INSPECT_HASH ? options.inspect.hash : options.hash}"
+          ['i18n', I18n.cache_namespace, cache_key_prefix, locale, key.hash, 
+            (USE_INSPECT_HASH ? options.inspect.hash : options.hash)].join('/')
         end
 
       private
         # In Ruby < 1.9 the following is true: { :foo => 1, :bar => 2 }.hash == { :foo => 2, :bar => 1 }.hash
         # Therefore we must use the hash of the inspect string instead to avoid cache key colisions.
         USE_INSPECT_HASH = RUBY_VERSION <= "1.9"
+        
+        def cache_key_prefix
+          @cache_key_prefix ||= Time.now.to_f
+        end
     end
   end
 end

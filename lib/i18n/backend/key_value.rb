@@ -88,6 +88,7 @@ module I18n
       protected
 
         def lookup(locale, key, scope = [], options = {})
+          I18n.log_message :debug, "##### I18n::Backend::KeyValue.lookup"
           key   = normalize_flat_keys(locale, key, scope, options[:separator])
           value = @store["#{locale}.#{key}"]
           value = ActiveSupport::JSON.decode(value) if value

@@ -16,6 +16,20 @@ module I18n
       raise ArgumentError.new('Interpolation values must be a Hash.') unless values.kind_of?(Hash)
       interpolate_hash(string, values)
     end
+    
+    def get_interpolation_keys(string='')
+      keys = []
+      if string.is_a?(String)
+        string.gsub(INTERPOLATION_PATTERN) do |match|
+          if match == '%%'
+            '%'
+          else
+            keys << ($1 || $2).to_sym
+          end
+        end
+      end
+      return keys
+    end
 
     def interpolate_hash(string, values)
       string.gsub(INTERPOLATION_PATTERN) do |match|

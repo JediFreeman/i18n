@@ -32,6 +32,7 @@ module I18n
       end
 
       def translate(locale, key, options = {})
+        I18n.log_message :debug, "##### I18n::Backend::Metadata.translate"
         metadata = {
           :locale    => locale,
           :key       => key,
